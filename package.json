@@ -1,6 +1,6 @@
 {
   "name": "itau-uy-utils",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Calculates totals for Itaú credit card transactions",
   "author": "Avi Tretiak",
   "license": "MIT",
