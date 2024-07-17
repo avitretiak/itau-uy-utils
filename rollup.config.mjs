@@ -1,7 +1,7 @@
-import { defineExternal, definePlugins } from '@gera2ld/plaid-rollup';
-import { defineConfig } from 'rollup';
-import userscript from 'rollup-plugin-userscript';
-import pkg from './package.json' assert { type: 'json' };
+import { defineExternal, definePlugins } from '@gera2ld/plaid-rollup'
+import { defineConfig } from 'rollup'
+import userscript from 'rollup-plugin-userscript'
+import pkg from './package.json' assert { type: 'json' }
 
 export default defineConfig(
   Object.entries({
@@ -15,7 +15,11 @@ export default defineConfig(
         extensions: ['.ts', '.js']
       }),
       userscript(meta =>
-        meta.replace('node.author', pkg.author).replace('node.version', pkg.version)
+        meta
+          .replace('node.author', pkg.author)
+          .replace('node.version', pkg.version)
+          .replace('node.description', pkg.description)
+          .replace('node.license', pkg.license)
       )
     ],
     external: defineExternal(['@violentmonkey/ui', '@violentmonkey/dom']),
