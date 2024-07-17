@@ -25,12 +25,12 @@ function calculateTotals(transactions: Transaction[]): Totals {
   }
 }
 function formatAmount(amount: number, currency: string): string {
-  const prefix = amount < 0 ? 'Saldo a Favor: ' : 'Saldo a Pagar: '
+  const suffix = amount < 0 ? 'a Favor.' : 'a Pagar.'
   const color = amount < 0 ? '#28a745' : '#dc3545'
   const formattedAmount = Math.abs(amount)
     .toFixed(2)
     .replace(/\d(?=(\d{3})+\.)/g, '$&,')
-  return `<span style="color: ${color};">${prefix}${currency} ${formattedAmount}</span>`
+  return `<span style="color: ${color};">Saldo en <b>${currency}</b>: ${formattedAmount} ${suffix}</span>`
 }
 
 function addTotalsRow(): void {
