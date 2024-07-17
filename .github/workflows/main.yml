@@ -1,0 +1,59 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main  # or your default branch name
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'  # Adjust this to your project's Node.js version
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build project
+      run: npm run build
+      env:
+        NODE_ENV: production
+
+    - name: Get version from package.json
+      id: package-version
+      run: echo "::set-output name=version::$(node -p "require('./package.json').version")"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.package-version.outputs.version }}
+        release_name: Release ${{ steps.package-version.outputs.version }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/itau-uy-card-utils.user.js
+        asset_name: itau-uy-card-utils.user.js
+        asset_content_type: application/javascript
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: itau-uy-card-utils
+        path: dist/itau-uy-card-utils.user.js
