@@ -15,7 +15,7 @@ export default defineConfig(
         extensions: ['.ts', '.js']
       }),
       userscript(meta =>
-        meta.replace('process.env.AUTHOR', pkg.author).replace('process.env.VERSION', pkg.version)
+        meta.replace('node.author', pkg.author).replace('node.version', pkg.version)
       )
     ],
     external: defineExternal(['@violentmonkey/ui', '@violentmonkey/dom']),
