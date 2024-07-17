@@ -7,7 +7,10 @@ interface Transaction {
   date: string;
   currency: string;
   amount: number;
-  installment: string;
+  installments?: {
+    current: number;
+    total: number;
+  };
 }
 
 interface Totals {
@@ -87,22 +90,31 @@ function addTotalsRow(): void {
 }
 
 function parseTransactionTable(): Transaction[] | null {
-  const table = document.getElementById('tbl_movimientos_actuales');
+  const table = document.getElementById(
+    'tbl_movimientos_actuales',
+  ) as HTMLTableElement | null;
   if (!table) return null;
 
-  const rows = Array.from((table as HTMLTableElement).rows);
+  const rows = Array.from(table.rows);
   const transactions: Transaction[] = [];
 
   for (let i = 0; i < rows.length; i++) {
     const cells = Array.from(rows[i].cells);
     if (cells.length >= 6) {
-      const cardNumber = cells[0].textContent?.trim() || '';
+      const cardNumber =
+        cells[0].textContent?.trim().replace('**** ', '') || '';
       const description = cells[1].textContent?.trim() || '';
       const type = cells[2].textContent?.trim() || '';
-      const date = cells[3].textContent?.trim() || '';
+      const date =
+        cells[3].textContent
+          ?.trim()
+          .split('/')
+          .reverse()
+          .map((part, index) => (index === 0 ? `20${part}` : part))
+          .join('-') || '';
       const currency = cells[4].textContent?.trim() || '';
       const amount = cells[5].textContent?.trim() || '';
-      const installment = cells[6]?.textContent?.trim() || '';
+      const installmentsText = cells[6]?.textContent?.trim() || '';
 
       // Convert amount to number
       const numAmount = parseFloat(amount.replace(/\./g, '').replace(',', '.'));
@@ -110,15 +122,26 @@ function parseTransactionTable(): Transaction[] | null {
       // Determine currency code
       const currencyCode = currency === 'Pesos' ? 'UYU' : 'USD';
 
-      transactions.push({
+      const transaction: Transaction = {
         cardNumber,
         description,
         type,
         date,
         currency: currencyCode,
         amount: numAmount,
-        installment,
-      });
+      };
+
+      if (installmentsText) {
+        const [currentInstallment, totalInstallments] = installmentsText
+          .split('/')
+          .map((part) => parseInt(part, 10) || 0);
+        transaction.installments = {
+          current: currentInstallment,
+          total: totalInstallments,
+        };
+      }
+
+      transactions.push(transaction);
     }
   }
 
