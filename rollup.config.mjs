@@ -5,16 +5,18 @@ import pkg from './package.json' assert { type: 'json' };
 
 export default defineConfig(
   Object.entries({
-    'itau-uy-card-utils': 'src/index.ts',
+    'itau-uy-card-utils': 'src/index.ts'
   }).map(([name, entry]) => ({
     input: entry,
     plugins: [
       ...definePlugins({
         esm: true,
         minimize: false,
-        extensions: ['.ts', '.js'],
+        extensions: ['.ts', '.js']
       }),
-      userscript((meta) => meta.replace('process.env.AUTHOR', pkg.author)),
+      userscript(meta =>
+        meta.replace('process.env.AUTHOR', pkg.author).replace('process.env.VERSION', pkg.version)
+      )
     ],
     external: defineExternal(['@violentmonkey/ui', '@violentmonkey/dom']),
     output: {
@@ -22,9 +24,9 @@ export default defineConfig(
       file: `dist/${name}.user.js`,
       globals: {
         '@violentmonkey/dom': 'VM',
-        '@violentmonkey/ui': 'VM',
+        '@violentmonkey/ui': 'VM'
       },
-      indent: false,
-    },
-  })),
-);
+      indent: false
+    }
+  }))
+)
