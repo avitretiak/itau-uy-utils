@@ -31,13 +31,13 @@ installed in your browser.
 
 ```sh
 # Compile and watch
-$ pnpm run dev
+$ bun run dev
 
 # Build script
-$ pnpm run build
+$ bun run build
 
 # Lint
-$ pnpm run lint
+$ bun run lint
 ```
 
 ## Contributions
