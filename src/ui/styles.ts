@@ -1,5 +1,4 @@
-import cash from 'cash-dom'
-const $ = cash
+import $ from 'cash-dom'
 
 export function injectStyles(): void {
   const styles = `

@@ -17,10 +17,10 @@ export function createButtons(): void {
 
   const buttons: ButtonConfig[] = [
     {
-      text: 'Preparar Tabla',
+      text: 'Parsear Tabla',
       onClick: ($btn: ReturnType<typeof $>) => {
         setupTableModifications()
-        $btn.prop('disabled', true).text('Tabla Preparada')
+        $btn.prop('disabled', true).text('Tabla Parseada')
       }
     },
     {

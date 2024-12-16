@@ -1,94 +1,95 @@
-import $ from 'cash-dom'
+import $, { Cash } from 'cash-dom'
+
+import { currencyConfig } from '../config/currency'
 import { fetchExchangeRates } from './exchange-rates'
+import { convertCurrency, formatCurrency, parseBalance } from '../utils/currency'
 
-const config = {
-  usdAccountSelector: '.zebra-row:nth-child(1)',
-  uyuAccountSelector: '.zebra-row:nth-child(2)',
-  locale: 'es-AR',
-  usdCurrency: 'USD',
-  uyuCurrency: 'UYU'
-}
-
-const formatCurrency = (amount: number, currency: string): string => {
-  return amount.toLocaleString(config.locale, { style: 'currency', currency })
-}
-
-const convertBalance = (
-  balance: number,
-  rate: number,
-  fromCurrency: string,
-  toCurrency: string
-): string => {
-  const convertedBalance = (
-    fromCurrency === config.usdCurrency ? balance * rate : balance / rate
-  ).toFixed(2)
-  return formatCurrency(parseFloat(convertedBalance), toCurrency)
-}
-
-const displayConvertedBalance = (
-  accountSelector: string,
-  balance: string,
+interface BalanceDisplay {
+  element: Cash
+  originalBalance: number
+  formattedBalance: string
   convertedBalance: string
-): void => {
-  const balanceElement = $(`${accountSelector} .saldo-valor`)
-  if (!balanceElement.length) return
-
-  balanceElement.text(balance)
-  const convertedBalanceElement = $('<p>')
-    .text(convertedBalance)
-    .addClass('saldo-valor')
-    .css('color', 'gray')
-
-  balanceElement.parent().append(convertedBalanceElement)
 }
 
-const parseBalance = (balanceText: string): number => {
-  return parseFloat(
-    balanceText
-      .replace(/,/g, '.')
-      .replace(/\.(?=.*\.)/g, '')
-      .replace(/\$/g, '') || '0'
-  )
+const findBalanceElement = (selector: string): Cash => {
+  const element = $(`${selector} ${currencyConfig.selectors.balanceValue}`)
+  if (!element.length) {
+    throw new Error(`Balance element not found for selector: ${selector}`)
+  }
+  return element
 }
+
+const displayConvertedBalance = ({
+  element,
+  formattedBalance,
+  convertedBalance
+}: BalanceDisplay): void => {
+  element
+    .text(formattedBalance)
+    .parent()
+    .append($('<p>').text(convertedBalance).addClass('saldo-valor').css('color', 'gray'))
+}
+
+const getBalanceDisplay = (
+  selector: string,
+  balance: number,
+  convertedBalance: string,
+  currency: keyof typeof currencyConfig.currencies
+): BalanceDisplay => ({
+  element: findBalanceElement(selector),
+  originalBalance: balance,
+  formattedBalance: formatCurrency(balance, currencyConfig.currencies[currency]),
+  convertedBalance
+})
 
 export const convertBalances = async (): Promise<void> => {
   try {
     const { usdPurchaseRate, usdSaleRate } = await fetchExchangeRates()
 
-    const usdBalanceElement = $(`${config.usdAccountSelector} .saldo-valor`)
-    const uyuBalanceElement = $(`${config.uyuAccountSelector} .saldo-valor`)
+    // Find and validate balance elements
+    const usdElement = findBalanceElement(currencyConfig.selectors.usdAccount)
+    const uyuElement = findBalanceElement(currencyConfig.selectors.uyuAccount)
 
-    if (!usdBalanceElement.length || !uyuBalanceElement.length) {
-      throw new Error('Balance elements not found')
-    }
+    // Parse balances
+    const usdBalance = parseBalance(usdElement.text())
+    const uyuBalance = parseBalance(uyuElement.text())
 
-    const usdBalance = parseBalance(usdBalanceElement.text())
-    const uyuBalance = parseBalance(uyuBalanceElement.text())
-
-    const convertedUsdBalance = convertBalance(
+    // Convert balances
+    const convertedUsdBalance = convertCurrency(
       usdBalance,
       usdPurchaseRate,
-      config.usdCurrency,
-      config.uyuCurrency
+      currencyConfig.currencies.usd,
+      currencyConfig.currencies.uyu
     )
-    const convertedUyuBalance = convertBalance(
+    const convertedUyuBalance = convertCurrency(
       uyuBalance,
       usdSaleRate,
-      config.uyuCurrency,
-      config.usdCurrency
+      currencyConfig.currencies.uyu,
+      currencyConfig.currencies.usd
     )
 
-    displayConvertedBalance(
-      config.usdAccountSelector,
-      formatCurrency(usdBalance, config.usdCurrency),
-      convertedUsdBalance
+    // Prepare balance displays
+    const usdDisplay = getBalanceDisplay(
+      currencyConfig.selectors.usdAccount,
+      usdBalance,
+      convertedUsdBalance,
+      'usd'
     )
-    displayConvertedBalance(
-      config.uyuAccountSelector,
-      formatCurrency(uyuBalance, config.uyuCurrency),
-      convertedUyuBalance
+    const uyuDisplay = getBalanceDisplay(
+      currencyConfig.selectors.uyuAccount,
+      uyuBalance,
+      convertedUyuBalance,
+      'uyu'
     )
+
+    // Update DOM
+    displayConvertedBalance(usdDisplay)
+    displayConvertedBalance(uyuDisplay)
   } catch (error) {
     console.error('Error converting balances:', error)
+    // Optionally show user-friendly error message in the UI
+    $(`${currencyConfig.selectors.usdAccount}, ${currencyConfig.selectors.uyuAccount}`)
+      .find(currencyConfig.selectors.balanceValue)
+      .after($('<p>').text('Error al convertir saldos').css({ color: 'red', fontSize: '0.8em' }))
   }
 }

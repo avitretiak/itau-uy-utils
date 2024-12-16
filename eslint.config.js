@@ -34,7 +34,9 @@ export default [
         // Bun globals
         Bun: true,
         // Userscript globals
-        GM_xmlhttpRequest: true
+        GM_xmlhttpRequest: true,
+        CSSStyleDeclaration: true,
+        Cash: true
       }
     },
     plugins: {
