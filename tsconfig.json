@@ -1,16 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
+    "target": "ES2020",
+    "module": "esnext",
+    "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true
+    "lib": ["ES2020", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*", "build.ts"],
+  "exclude": ["node_modules"]
 }
