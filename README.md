@@ -22,7 +22,7 @@ instalada en tu navegador.
 
 1. Instala el userscript haciendo clic
    [aquí](https://github.com/avitretiak/itau-uy-utils/releases/latest/download/itau-uy-card-utils.user.js).
-2. Visita la página de transacciones de tarjeta de crédito de Itaú.
+2. Visita la página de transacciones de balance de cuenta o movimientos actuales de tú tarjeta de crédito de Itaú.
 
 ## Uso
 
