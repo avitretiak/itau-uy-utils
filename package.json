@@ -1,6 +1,6 @@
 {
   "name": "itau-uy-utils",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Provides useful utilities for Itaú UY website",
   "author": "Avi Tretiak",
   "license": "MIT",
@@ -10,17 +10,14 @@
   },
   "scripts": {
     "prepare": "husky",
-    "dev": "bun run rollup -wc",
+    "dev": "bun build.ts --watch",
     "clean": "del-cli dist",
     "lint": "eslint --ext .ts . && prettier --ignore-path .eslintignore --check .",
     "lint:fix": "eslint --ext .ts --fix . && prettier --ignore-path .eslintignore --write .",
     "ci": "bun run lint",
-    "build:js": "bun run rollup -c",
-    "build": "cross-env NODE_ENV=production bun run ci && bun run clean && bun run build:js"
+    "build": "cross-env NODE_ENV=production bun run ci && bun run clean && bun build.ts"
   },
   "devDependencies": {
-    "@gera2ld/plaid": "~2.7.0",
-    "@gera2ld/plaid-rollup": "~2.7.0",
     "@types/node": "^20.17.10",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
@@ -32,9 +29,6 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.2.11",
     "prettier": "^3.4.2",
-    "rollup": "^4.28.1",
-    "rollup-plugin-typescript2": "^0.36.0",
-    "rollup-plugin-userscript": "^0.3.4",
     "typescript": "^5.7.2"
   },
   "lint-staged": {
