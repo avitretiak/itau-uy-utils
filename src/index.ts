@@ -96,7 +96,7 @@ function addCheckboxesToTable(): void {
     const row = table.rows[i]
     const checkboxCell = row.insertCell(0)
     checkboxCell.className = row.cells[1].className
-    
+
     const checkbox = document.createElement('input')
     checkbox.type = 'checkbox'
     checkbox.style.cursor = 'pointer'
@@ -107,7 +107,7 @@ function addCheckboxesToTable(): void {
         addTotalsRow()
       }
     })
-    
+
     checkboxCell.appendChild(checkbox)
   }
 }
