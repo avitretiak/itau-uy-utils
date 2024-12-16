@@ -1,3 +1,5 @@
+import './meta.js?userscript-metadata'
+
 interface Transaction {
   cardNumber: string
   description: string
@@ -9,7 +11,6 @@ interface Transaction {
     current: number
     total: number
   }
-  ignored?: boolean
 }
 
 interface Totals {
@@ -18,11 +19,70 @@ interface Totals {
 }
 
 function calculateTotals(transactions: Transaction[]): Totals {
-  const activeTransactions = transactions.filter(t => !t.ignored)
   return {
-    UYU: activeTransactions.filter(t => t.currency === 'UYU').reduce((sum, t) => sum + t.amount, 0),
-    USD: activeTransactions.filter(t => t.currency === 'USD').reduce((sum, t) => sum + t.amount, 0)
+    UYU: transactions.filter(t => t.currency === 'UYU').reduce((sum, t) => sum + t.amount, 0),
+    USD: transactions.filter(t => t.currency === 'USD').reduce((sum, t) => sum + t.amount, 0)
   }
+}
+function formatAmount(amount: number, currency: string): string {
+  const suffix = amount < 0 ? 'a Favor.' : 'a Pagar.'
+  const color = amount < 0 ? '#28a745' : '#dc3545'
+  const formattedAmount = Math.abs(amount)
+    .toFixed(2)
+    .replace(/\d(?=(\d{3})+\.)/g, '$&,')
+  return `<span style="color: ${color};">Saldo en <b>${currency}</b>: ${formattedAmount} ${suffix}</span>`
+}
+
+function addTotalsRow(): void {
+  const table = document.getElementById('tbl_movimientos_actuales')
+  if (!table) {
+    console.log('Tabla no encontrada')
+    return
+  }
+
+  const transactions = parseTransactionTable()
+  if (!transactions) {
+    console.log('No se encontraron datos de transacciones')
+    return
+  }
+
+  const totals = calculateTotals(transactions)
+
+  // Remove existing totals and separator rows if they exist
+  const existingTotalsRow = document.getElementById('totalsRow')
+  const existingSeparatorRow = document.getElementById('separatorRow')
+  if (existingTotalsRow) existingTotalsRow.remove()
+  if (existingSeparatorRow) existingSeparatorRow.remove()
+
+  // Create a separator row
+  const separatorRow = (table as HTMLTableElement).insertRow(-1)
+  separatorRow.id = 'separatorRow'
+  const separatorCell = separatorRow.insertCell(0)
+  separatorCell.colSpan = 7
+  separatorCell.style.height = '10px'
+  separatorCell.style.backgroundColor = 'white'
+
+  // Create a new row for totals
+  const newRow = (table as HTMLTableElement).insertRow(-1)
+  newRow.id = 'totalsRow'
+  newRow.className = (table as HTMLTableElement).rows[1].className
+
+  const cell = newRow.insertCell(0)
+
+  // Set the content for the new cells
+  cell.innerHTML = `
+            ${formatAmount(totals.UYU, 'UYU')}<br>
+            ${formatAmount(totals.USD, 'USD')}
+        `
+  cell.colSpan = 12
+
+  // Apply existing styles
+  cell.className = (table as HTMLTableElement).rows[1].cells[0].className
+  cell.className = (table as HTMLTableElement).rows[1].cells[4].className
+
+  // Minimal custom styling
+  newRow.style.fontWeight = 'bold'
+  cell.style.textAlign = 'center'
 }
 
 function parseTransactionTable(): Transaction[] | null {
@@ -32,8 +92,7 @@ function parseTransactionTable(): Transaction[] | null {
   const rows = Array.from(table.rows)
   const transactions: Transaction[] = []
 
-  // Skip header row
-  for (let i = 1; i < rows.length; i++) {
+  for (let i = 0; i < rows.length; i++) {
     const cells = Array.from(rows[i].cells)
     if (cells.length >= 6) {
       const cardNumber = cells[0].textContent?.trim().replace('**** ', '') || ''
@@ -50,7 +109,10 @@ function parseTransactionTable(): Transaction[] | null {
       const amount = cells[5].textContent?.trim() || ''
       const installmentsText = cells[6]?.textContent?.trim() || ''
 
+      // Convert amount to number
       const numAmount = parseFloat(amount.replace(/\./g, '').replace(',', '.'))
+
+      // Determine currency code
       const currencyCode = currency === 'Pesos' ? 'UYU' : 'USD'
 
       const transaction: Transaction = {
@@ -59,8 +121,7 @@ function parseTransactionTable(): Transaction[] | null {
         type,
         date,
         currency: currencyCode,
-        amount: numAmount,
-        ignored: false
+        amount: numAmount
       }
 
       if (installmentsText) {
@@ -79,105 +140,12 @@ function parseTransactionTable(): Transaction[] | null {
 
   return transactions
 }
-
-function addCheckboxesToTable(): void {
-  const table = document.getElementById('tbl_movimientos_actuales') as HTMLTableElement | null
-  if (!table) return
-
-  // Add header for checkbox column
-  const headerRow = table.rows[0]
-  const checkboxHeader = document.createElement('th')
-  checkboxHeader.textContent = 'Ignorar'
-  checkboxHeader.className = headerRow.cells[0].className
-  headerRow.insertBefore(checkboxHeader, headerRow.firstChild)
-
-  // Add checkboxes to each row
-  for (let i = 1; i < table.rows.length; i++) {
-    const row = table.rows[i]
-    const checkboxCell = row.insertCell(0)
-    checkboxCell.className = row.cells[1].className
-
-    const checkbox = document.createElement('input')
-    checkbox.type = 'checkbox'
-    checkbox.style.cursor = 'pointer'
-    checkbox.addEventListener('change', () => {
-      const transactions = parseTransactionTable()
-      if (transactions) {
-        transactions[i - 1].ignored = checkbox.checked
-        addTotalsRow()
-      }
-    })
-
-    checkboxCell.appendChild(checkbox)
-  }
-}
-
-function addTotalsRow(): void {
-  const table = document.getElementById('tbl_movimientos_actuales')
-  if (!table) {
-    console.log('Tabla no encontrada')
-    return
-  }
-
-  const transactions = parseTransactionTable()
-  if (!transactions) {
-    console.log('No se encontraron datos de transacciones')
-    return
-  }
-
-  // Update ignored status based on checkboxes
-  const checkboxes = Array.from(table.querySelectorAll('input[type="checkbox"]'))
-  checkboxes.forEach((checkbox, index) => {
-    if (transactions[index]) {
-      transactions[index].ignored = (checkbox as HTMLInputElement).checked
-    }
-  })
-
-  const totals = calculateTotals(transactions)
-
-  // Remove existing totals and separator rows if they exist
-  const existingTotalsRow = document.getElementById('totalsRow')
-  const existingSeparatorRow = document.getElementById('separatorRow')
-  if (existingTotalsRow) existingTotalsRow.remove()
-  if (existingSeparatorRow) existingSeparatorRow.remove()
-
-  // Create a separator row
-  const separatorRow = (table as HTMLTableElement).insertRow(-1)
-  separatorRow.id = 'separatorRow'
-  const separatorCell = separatorRow.insertCell(0)
-  separatorCell.colSpan = 8 // Updated colspan to account for new checkbox column
-  separatorCell.style.height = '10px'
-  separatorCell.style.backgroundColor = 'white'
-
-  // Create a new row for totals
-  const newRow = (table as HTMLTableElement).insertRow(-1)
-  newRow.id = 'totalsRow'
-  newRow.className = (table as HTMLTableElement).rows[1].className
-
-  const cell = newRow.insertCell(0)
-
-  // Set the content for the new cells
-  cell.innerHTML = `
-    ${formatAmount(totals.UYU, 'UYU')}<br>
-    ${formatAmount(totals.USD, 'USD')}
-  `
-  cell.colSpan = 13 // Updated colspan to account for new checkbox column
-
-  // Apply existing styles
-  cell.className = (table as HTMLTableElement).rows[1].cells[0].className
-  cell.className = (table as HTMLTableElement).rows[1].cells[4].className
-
-  // Minimal custom styling
-  newRow.style.fontWeight = 'bold'
-  cell.style.textAlign = 'center'
-}
-
 function createButtons(): void {
   // Create a flex container
   const flexContainer = document.createElement('div')
   flexContainer.style.display = 'flex'
   flexContainer.style.justifyContent = 'center'
-  flexContainer.style.gap = '10px'
+  flexContainer.style.gap = '10px' // Add some space between buttons
   flexContainer.style.marginTop = '15px'
   flexContainer.style.marginBottom = '15px'
 
@@ -217,7 +185,7 @@ function createButtons(): void {
       // Insert the flex container after the first table
       firstTable.parentNode?.insertBefore(flexContainer, firstTable.nextSibling)
     } else {
-      // Append to the container div
+      // If no table is found, append to the container div
       containerDiv.appendChild(flexContainer)
     }
   } else {
@@ -225,16 +193,14 @@ function createButtons(): void {
     document.body.appendChild(flexContainer)
   }
 }
-
 function init(): void {
   const observer = new MutationObserver((mutations, obs) => {
     const containerDiv = document.querySelector<HTMLDivElement>(
       'div.contenido.movimientos-actuales'
     )
     if (containerDiv) {
-      addCheckboxesToTable() // Add checkboxes when the table is ready
       createButtons()
-      obs.disconnect() // Stop observing once we've added the elements
+      obs.disconnect() // Stop observing once we've added the buttons
     }
   })
 
@@ -243,6 +209,27 @@ function init(): void {
     subtree: true
   })
 }
+function downloadTransactions(transactions: Transaction[]): void {
+  // Create JSON content
+  const jsonContent = JSON.stringify(transactions, null, 2) // Pretty-print with 2 spaces
 
+  // Create a Blob with the JSON content
+  const blob = new Blob([jsonContent], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0]
+
+  // Create a temporary link element and trigger the download
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', `transactions_${today}.json`)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+
+  // Clean up the URL object
+  URL.revokeObjectURL(url)
+}
 // Run the init function when the script loads
 init()
