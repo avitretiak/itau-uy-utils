@@ -1,33 +1,36 @@
 # Itaú Utils Userscript
 
-This userscript enhances the Itaú e-banking experience page by adding a varied set of features. This
-is a userscript initiated from
+Este userscript mejora la experiencia de la banca electrónica de Itaú agregando un conjunto variado
+de funcionalidades. Este es un userscript iniciado desde
 [@violentmonkey/generator-userscript](https://github.com/violentmonkey/generator-userscript).
 
-## Features
+## Funcionalidades
 
-- **Calculate Totals:** Automatically calculates and displays totals in UYU (Uruguayan Pesos) and
-  USD (United States Dollars) based on the transactions listed on the page.
-- **Download Transactions:** Allows you to download all transactions shown on the page in JSON
-  format.
+- **Conversión de Saldo:** Convierte tu saldo de USD a UYU y viceversa con la tasa de conversión más
+  reciente en la página de saldo de cuenta.
+- **Calcular Totales:** Calcula y muestra automáticamente los totales en UYU (Pesos Uruguayos) y USD
+  (Dólares Estadounidenses) basado en las transacciones listadas en la página, permite excluir
+  transacciones, y automáticamente excluye y resalta los pagos del mes anterior.
+- **Descargar Transacciones:** Permite descargar todas las transacciones mostradas en la página en
+  formato JSON.
 
-## Installation
+## Instalación
 
-To use this script, you'll need a userscript manager extension like
-[Violentmonkey](https://violentmonkey.github.io/) or [Tampermonkey](https://www.tampermonkey.net/)
-installed in your browser.
+Para usar este script, necesitarás una extensión de gestor de userscripts como
+[Violentmonkey](https://violentmonkey.github.io/) o [Tampermonkey](https://www.tampermonkey.net/)
+instalada en tu navegador.
 
-1. Install the userscript by clicking
-   [here](https://github.com/avitretiak/itau-uy-utils/releases/latest/download/itau-uy-card-utils.user.js).
-2. Visit the Itaú credit card transactions page.
+1. Instala el userscript haciendo clic
+   [aquí](https://github.com/avitretiak/itau-uy-utils/releases/latest/download/itau-uy-card-utils.user.js).
+2. Visita la página de transacciones de tarjeta de crédito de Itaú.
 
-## Usage
+## Uso
 
-- After installing the script, navigate to your Itaú credit card transactions page.
-- Click on the "Calcular Totales" button to calculate and display transaction totals.
-- Use the "Descargar Transacciones" button to download all transactions in JSON format.
+- Después de instalar el script, navega a tu página de transacciones de tarjeta de crédito de Itaú.
+- Haz clic en el botón "Calcular Totales" para calcular y mostrar los totales de las transacciones.
+- Usa el botón "Descargar Transacciones" para descargar todas las transacciones en formato JSON.
 
-## Development
+## Desarrollo
 
 ```sh
 # Compile and watch
@@ -40,12 +43,12 @@ $ bun run build
 $ bun run lint
 ```
 
-## Contributions
+## Contribuciones
 
-Contributions are welcome! If you encounter any issues or have suggestions for improvements, please
-open an issue on [GitHub](https://github.com/avitretiak/itau-uy-utils/issues).
+¡Las contribuciones son bienvenidas! Si encuentras algún problema o tienes sugerencias para mejoras,
+por favor abre un issue en [GitHub](https://github.com/avitretiak/itau-uy-utils/issues).
 
-## License
+## Licencia
 
-This project is licensed under the MIT License - see the
-[LICENSE](https://github.com/avitretiak/itau-uy-utils/blob/main/LICENSE) file for details.
+Este proyecto está licenciado bajo la Licencia MIT - consulta el archivo
+[LICENSE](https://github.com/avitretiak/itau-uy-utils/blob/main/LICENSE) para más detalles.
