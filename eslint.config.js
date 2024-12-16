@@ -32,7 +32,9 @@ export default [
         console: true,
         process: true,
         // Bun globals
-        Bun: true
+        Bun: true,
+        // Userscript globals
+        GM_xmlhttpRequest: true
       }
     },
     plugins: {
