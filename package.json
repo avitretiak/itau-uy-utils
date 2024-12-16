@@ -21,21 +21,21 @@
   "devDependencies": {
     "@gera2ld/plaid": "~2.7.0",
     "@gera2ld/plaid-rollup": "~2.7.0",
-    "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
-    "@violentmonkey/types": "^0.1.7",
+    "@types/node": "^20.17.10",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "@violentmonkey/types": "^0.1.9",
     "cross-env": "^7.0.3",
     "del-cli": "^5.1.0",
-    "eslint": "^8.0.0",
+    "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
-    "husky": "^9.0.11",
-    "lint-staged": "^15.2.2",
-    "prettier": "^3.2.5",
-    "rollup": "^4.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "prettier": "^3.4.2",
+    "rollup": "^4.28.1",
     "rollup-plugin-typescript2": "^0.36.0",
-    "rollup-plugin-userscript": "^0.3.2",
-    "typescript": "^5.0.0"
+    "rollup-plugin-userscript": "^0.3.4",
+    "typescript": "^5.7.2"
   },
   "lint-staged": {
     "src/**": [
